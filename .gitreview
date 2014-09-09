@@ -1,0 +1,5 @@
+[gerrit]
+host=git.hackers.systems
+port=22022
+project=bootweb/core.git
+defaultbranch=master
