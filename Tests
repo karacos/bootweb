@@ -1,0 +1,36 @@
+#!/bin/bash
+# Title          : BootWeb
+# Description    : BootWeb Application Server Launcher
+# Authors        : BootWeb by the KaraCos Team 	< http://www.karacos.org >
+#                : Cyril Gratecos 		< cyril.gratecos@gmail.com >
+#                : Nicolas Karageuzian 		< nicolas@karageuzian.com >
+# License        : The MIT License (MIT)
+# Copyright (c)  : <2014-2113> <The KaraCos Team>
+# Date           : 20140805
+# Version        : 0.1
+# Usage          : ./Bootweb --help
+
+export BW_SERVER=test
+export BW="$( readlink -f ${BASH_SOURCE[0]} )"
+export BW_ROOT="$( dirname $BW )" 
+# NodeJS Variables
+export NODE_PATH="${BW_ROOT}/lib/node_modules" 
+# Loging Variables
+export LOGFILE="${BW_ROOT}/server/${BW_SERVER}/logs/bootweb.log" # Fichier de log
+export LOGLEVEL="DEBUG"
+
+
+if [ ! $( command -v node ) ]
+then 
+  export NODEJS="$BW_ROOT/bin/node-v0.10.26-linux-x64/bin/node"
+else
+  export NODEJS=$( command -v node )
+fi
+if [ ! $( command -v npm ) ]
+then
+  export NPM="$BW_ROOT/bin/node-v0.10.26-linux-x64/bin/npm"
+else
+  export NPM=$( command -v npm )
+fi
+cd lib
+${BW_ROOT}/lib/node_modules/.bin/mocha -w

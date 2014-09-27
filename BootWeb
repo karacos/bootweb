@@ -1,0 +1,105 @@
+#!/bin/bash
+# Title          : BootWeb
+# Description    : BootWeb Application Server Launcher
+# Authors        : BootWeb by the KaraCos Team 	< http://www.karacos.org >
+#                : Cyril Gratecos 		< cyril.gratecos@gmail.com >
+#                : Nicolas Karageuzian 		< nicolas@karageuzian.com >
+# License        : The MIT License (MIT)
+# Copyright (c)  : <2014-2113> <The KaraCos Team>
+# Date           : 20140805
+# Version        : 0.1
+# Usage          : ./Bootweb --help
+
+export BW="$( readlink -f ${BASH_SOURCE[0]} )"
+export BW_ROOT="$( dirname $BW )" 
+# NodeJS Variables
+export NODE_PATH="${BW_ROOT}/lib/node_modules" 
+# Loging Variables
+export LOGFILE="${BW_ROOT}/server/${BW_SERVER}/logs/bootweb.log" # Fichier de log
+export LOGLEVEL="DEBUG"
+
+
+source $BW_ROOT/lib/bootweb/functions.sh
+
+if [ ! $( command -v node ) ]
+then
+  export NODEJS="$BW_ROOT/bin/node-v0.10.26-linux-x64/bin/node"
+else
+  export NODEJS=$( command -v node )
+fi
+if [ ! $( command -v npm ) ]
+then
+  export NPM="$BW_ROOT/bin/node-v0.10.26-linux-x64/bin/npm"
+else
+  export NPM=$( command -v npm )
+fi
+
+
+function usage {
+  echo "Usage: $0 {start|stop|restart|status|createserver} SERVER"
+}
+
+if [ "$#" -ge "2" ]
+then
+  export BW_SERVER=$2
+  case "$1" in
+    start)
+      if [ -d "$BW_ROOT/server/$BW_SERVER" ]
+      then
+        echo $( splashScreen )
+        $NODEJS $BW_ROOT/lib/bootweb/index.js $@ &
+        #$NODEJS $BW_ROOT/lib/bootweb/server.js $@ &
+        exit 0
+      else
+        $0 createserver $BW_SERVER
+      fi
+    ;;
+    stop)
+      PIDFILE="$BW_ROOT/server/$BW_SERVER/run/bootweb.pid"
+      if [ -f $PIDFILE ]
+      then
+        PID=$( cat $PIDFILE )
+        kill -s SIGINT $PID
+        exit 0
+      fi
+    ;;
+    restart)
+      $0 stop $BW_SERVER
+      sleep 2
+      $0 start $BW_SERVER
+    ;;
+    status)
+      exit 1
+    ;;
+    npm)
+      PWD=$( pwd )
+      cd $BW_ROOT/lib
+      $NPM $2 $3
+      echo $@
+      exit 0
+    ;;
+    install)
+      doInstall
+      exit 0
+    ;;
+    createserver)
+      echo "Server $BW_SERVER does not exist"
+      read -p "Do you want to create the server $BW_SERVER ? " -n 1 -r
+      echo    # (optional) move to a new line
+      if [[ $REPLY =~ ^[Yy]$ ]]
+      then
+	cd $BW_ROOT/server
+	mkdir -p $BW_SERVER $BW_SERVER/run $BW_SERVER/lib $BW_SERVER/datas
+	mkdir -p $BW_SERVER/etc $BW_SERVER/logs $BW_SERVER/home $BW_SERVER/tmp
+        echo "server $BW_SERVER created"
+      fi
+      exit 0
+    ;;
+    *)
+      usage
+      exit 1
+    ;;
+  esac
+else
+  usage
+fi
