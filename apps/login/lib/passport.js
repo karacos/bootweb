@@ -1,7 +1,7 @@
 // load all the things we need
 var path              = require( 'path' )
   , log4js            = require( 'log4js' )
-  , conf              = require(  '../../../lib/bootweb/config' )
+  , conf              = require(  '../../../bootweb/config' )
   , pass               = require('./password')
   , LocalStrategy     = require( 'passport-local' ).Strategy;
 //, FacebookStrategy = require( 'passport-facebook' ).Strategy
@@ -10,7 +10,7 @@ var path              = require( 'path' )
 
 log4js.loadAppender( 'console' );
 log4js.loadAppender( 'file' );
-log4js.addAppender( log4js.appenders.file( conf.ROOT + '/server/' + conf.SERVER + '/logs/bootweb.log' ), 'passport' );
+log4js.addAppender( log4js.appenders.file( conf.ROOT + '/servers/' + conf.SERVER + '/logs/bootweb.log' ), 'passport' );
 var logger = log4js.getLogger( 'passport' );
 logger.setLevel( 'INFO' );
  

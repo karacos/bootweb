@@ -13,13 +13,13 @@
 export BW="$( readlink -f ${BASH_SOURCE[0]} )"
 export BW_ROOT="$( dirname $BW )" 
 # NodeJS Variables
-export NODE_PATH="${BW_ROOT}/lib/node_modules" 
+# export NODE_PATH="${BW_ROOT}/lib/node_modules"
 # Loging Variables
-export LOGFILE="${BW_ROOT}/server/${BW_SERVER}/logs/bootweb.log" # Fichier de log
+export LOGFILE="${BW_ROOT}/servers/${BW_SERVER}/logs/bootweb.log" # Fichier de log
 export LOGLEVEL="DEBUG"
 
 
-source $BW_ROOT/lib/bootweb/functions.sh
+source $BW_ROOT/bootweb/functions.sh
 
 if [ ! $( command -v node ) ]
 then
@@ -44,18 +44,18 @@ then
   export BW_SERVER=$2
   case "$1" in
     start)
-      if [ -d "$BW_ROOT/server/$BW_SERVER" ]
+      if [ -d "$BW_ROOT/servers/$BW_SERVER" ]
       then
         echo $( splashScreen )
-        $NODEJS $BW_ROOT/lib/bootweb/index.js $@ &
-        #$NODEJS $BW_ROOT/lib/bootweb/server.js $@ &
+        $NODEJS $BW_ROOT/bootweb/cluster.js $@ &
+        #$NODEJS $BW_ROOT/bootweb/server.js $@ &
         exit 0
       else
         $0 createserver $BW_SERVER
       fi
     ;;
     stop)
-      PIDFILE="$BW_ROOT/server/$BW_SERVER/run/bootweb.pid"
+      PIDFILE="$BW_ROOT/servers/$BW_SERVER/run/bootweb.pid"
       if [ -f $PIDFILE ]
       then
         PID=$( cat $PIDFILE )
@@ -73,7 +73,7 @@ then
     ;;
     npm)
       PWD=$( pwd )
-      cd $BW_ROOT/lib
+      cd $BW_ROOT
       $NPM $2 $3
       echo $@
       exit 0
@@ -88,8 +88,8 @@ then
       echo    # (optional) move to a new line
       if [[ $REPLY =~ ^[Yy]$ ]]
       then
-	cd $BW_ROOT/server
-	mkdir -p $BW_SERVER $BW_SERVER/run $BW_SERVER/lib $BW_SERVER/datas
+	cd $BW_ROOT/servers
+	mkdir -p $BW_SERVER $BW_SERVER/run $BW_SERVER $BW_SERVER/datas
 	mkdir -p $BW_SERVER/etc $BW_SERVER/logs $BW_SERVER/home $BW_SERVER/tmp
         echo "server $BW_SERVER created"
       fi

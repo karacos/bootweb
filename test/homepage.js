@@ -1,10 +1,11 @@
 'use strict';
-var app = require('../../apps/bootweb');
+var bootweb = require('../bootweb');
+bootweb.worker = {id:0};
+var app = require('../apps/bootweb');
 // import the moongoose helper utilities
 var utils = require('./utils');
 var request = require('supertest');
 var should = require('should');
-
 
 describe('Home page', function () {
  //... previous test
@@ -17,4 +18,5 @@ describe('Home page', function () {
        return done();
      });
  });
+ ;
 });

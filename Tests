@@ -10,16 +10,15 @@
 # Version        : 0.1
 # Usage          : ./Bootweb --help
 
-export BW_SERVER=test
 export BW="$( readlink -f ${BASH_SOURCE[0]} )"
 export BW_ROOT="$( dirname $BW )" 
 # NodeJS Variables
-export NODE_PATH="${BW_ROOT}/lib/node_modules" 
+# export NODE_PATH="${BW_ROOT}/lib/node_modules"
 # Loging Variables
-export LOGFILE="${BW_ROOT}/server/${BW_SERVER}/logs/bootweb.log" # Fichier de log
+export LOGFILE="${BW_ROOT}/servers/${BW_SERVER}/logs/bootweb.log" # Fichier de log
 export LOGLEVEL="DEBUG"
 
-
+export BW_SERVER=test
 if [ ! $( command -v node ) ]
 then 
   export NODEJS="$BW_ROOT/bin/node-v0.10.26-linux-x64/bin/node"
@@ -32,5 +31,4 @@ then
 else
   export NPM=$( command -v npm )
 fi
-cd lib
-${BW_ROOT}/lib/node_modules/.bin/mocha -w
+${BW_ROOT}/node_modules/.bin/mocha

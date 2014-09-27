@@ -21,15 +21,15 @@
 
 BootWeb app
 
-   - add 	: Create an application
-   - rm  	: Remove an application
+   - create 	: Create an application
+   - delete  	: Remove an application
    - mount 	: Mount an application in a server routing namespace
    - umount 	: Umount an application from a server routing namespace
    - list 	: List availables applications
    - show	: List Mounted application
    - build	: Compile all JS and create a zip of the given app
    - commit	: Commit an app to a BootWeb repository
-   - pull	: Pull an app to a BootWeb repository
+   - pull	: Pull an app from a BootWeb repository
 
 BootWeb server
 

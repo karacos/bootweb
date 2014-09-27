@@ -3,7 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var bootweb = require('../../lib/bootweb/bootweb');
+var bootweb = require('../../bootweb');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var Serializer = require("mousse").Serializer;
@@ -24,10 +24,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use('/', routes);
 app.get('/', function(req, res, next){
-  res.send(new Serializer().serialize(bootweb.wss));
+  res.send(new Serializer().serialize(bootweb.worker.wss));
 });
 app.get('/t', function(req, res, next){
-  res.send(bootweb.worker.id);
+  res.send("Hello From worker " + bootweb.worker.id);
 });
 app.use('/users', users);
 
