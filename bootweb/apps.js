@@ -10,9 +10,12 @@
  ** @Version        : 0.1
  **/
 
-var EventEmitter = require ( 'events' ).EventEmitter
+var EventEmitter = require('events').EventEmitter
   , bootweb
-  , util = require ( 'util' );
+     , cookieParser = require('cookie-parser')
+  , session = require('express-session')
+  , NedbStore = require('connect-nedb-session')(session)
+  , util = require('util');
 
 /**
  * Main BootWeb app registry object, may emit events.
@@ -20,13 +23,13 @@ var EventEmitter = require ( 'events' ).EventEmitter
  *
  * @param bw the bootweb object
  */
-function AppRegistry (bw) {
-  bootweb = bw;
+function AppRegistry(bw) {
+  this.bootweb = bootweb = bw;
   this.log = require('log4js').getLogger('bootweb.appregistry');
-  EventEmitter.call ( null, this );
+  EventEmitter.call(null, this);
 }
 
-util.inherits ( AppRegistry, EventEmitter );
+util.inherits(AppRegistry, EventEmitter);
 
 AppRegistry.prototype.Apps = {};
 
@@ -36,8 +39,8 @@ AppRegistry.prototype.Apps = {};
  */
 AppRegistry.prototype.doCallBack = function (cb) {
 
-  if ( typeof cb === "function" ) {
-    cb ( null, this );
+  if (typeof cb === "function") {
+    cb(null, this);
   }
 }
 
@@ -53,8 +56,8 @@ AppRegistry.prototype.list = function (app, callback) {
     app = undefined;
   }
   //TODO implements filter (Apps.map())
-  if ( typeof callback === "function" ) {
-    return callback ( null, this.Apps );
+  if (typeof callback === "function") {
+    return callback(null, this.Apps);
   } else {
     return this.Apps;
   }
@@ -68,8 +71,8 @@ AppRegistry.prototype.list = function (app, callback) {
  * @param callback (app)
  */
 AppRegistry.prototype.get = function (path, callback) {
-  if ( callback ) {
-    return callback ( null, this.Apps[path] );
+  if (callback) {
+    return callback(null, this.Apps[path]);
   } else {
     return this.Apps[path];
   }
@@ -81,7 +84,7 @@ AppRegistry.prototype.get = function (path, callback) {
  * @param callback
  */
 AppRegistry.prototype.status = function (app, callback) {
-  this.doCallBack ( callback );
+  this.doCallBack(callback);
 };
 
 /**
@@ -91,7 +94,7 @@ AppRegistry.prototype.status = function (app, callback) {
  * @param callback
  */
 AppRegistry.prototype.create = function (app, server, callback) {
-  this.doCallBack ( callback );
+  this.doCallBack(callback);
 };
 
 /**
@@ -100,12 +103,57 @@ AppRegistry.prototype.create = function (app, server, callback) {
  * @param callback
  */
 AppRegistry.prototype.delete = function (app, callback) {
-  this.doCallBack ( callback );
+  this.doCallBack(callback);
+};
+
+/**
+ * Helper for configuring app with all bootweb defaults
+ *
+ * @param app
+ * @param callback
+ */
+AppRegistry.prototype.wrapApp = function(app, callback) {
+  if (bootweb.conf.env === 'test' || bootweb.conf.env === 'dev') {
+      // development error handler
+      app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+          message: err.message,
+          error: err
+        });
+      });
+    } else {
+      // production error handler
+      app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+          message: err.message,
+          error: {}
+        });
+      });
+    }
+    app.isLoggedIn = function (req, res, next) {
+      if (req.isAuthenticated())
+        return next();
+      res.redirect('/login');
+    }
+    // error handlers
+  // catch 404 and forward to error handler
+    app.use(function (req, res, next) {
+      var err = new Error('Not Found');
+      err.status = 404;
+      next(err);
+    });
+
+    app.use(bootweb.passport.initialize());
+    app.use(bootweb.passport.session());
+    app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true}));
+
+    app.use(cookieParser('keyboard cat'));
 };
 
 /**
  * Loads an app in the mount tree
-
  *
  * @param app object
  * @param path mount path for app
@@ -115,17 +163,18 @@ AppRegistry.prototype.delete = function (app, callback) {
 AppRegistry.prototype.load = function (app, path, rootApp, callback) {
   var apps = this;
   try {
-    this.Apps[path] = app;
-    rootApp.use ( path, this.Apps[path] );
-    if ( callback ) {
-      return callback ( null, bootweb );
+    apps.wrapApp(app);
+    apps.Apps[path] = app;
+    rootApp.use(path, this.Apps[path]);
+    if (callback) {
+      return callback(null, bootweb);
     }
   } catch (e) {
-    if ( callback ) {
-      callback ( e, bootweb );
+    if (callback) {
+      callback(e, bootweb);
     }
-    apps.log.error ( "Impossible de monter l'application " + app + " at path : " + path );
-    apps.log.debug ( e );
+    apps.log.error("Impossible de monter l'application " + app + " at path : " + path);
+    apps.log.debug(e);
   }
 };
 

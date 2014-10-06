@@ -7,17 +7,17 @@ var AppRegistry = require('./apps')
 
 module.exports = {
 
-  init: function (cluster, app, callback) {
-    var bootweb = require('./')
-      , worker = this;
+  init: function (bootweb, app, callback) {
+    var worker = this;
+    if (bootweb.cluster.isMaster)
+      throw "not a worker, unallowed";
     if (typeof app === "function" && callback === undefined) {
       callback = app;
       app = undefined;
     }
     worker.apps = new AppRegistry(bootweb);
-    bootweb.cluster = cluster;
     bootweb.worker = worker;
-    worker.id = cluster.worker.id;
+    worker.id = bootweb.cluster.worker.id;
     bootweb.start(function (err, bootweb) {
       var log4js = require('log4js');
       worker.bootweb = bootweb;
@@ -26,8 +26,9 @@ module.exports = {
         worker.app = app;
       } else {
         worker.app = require('../apps/bootweb');
-        }
-      //require("./auth/routes")(worker.app,bootweb.passport);
+      }
+      worker.apps.wrapApp(worker.app);
+      require("./auth/routes")(worker.app, bootweb.passport);
       worker.server = require('http').createServer(worker.app);
       for (var path in bootweb.conf.namespace) {
         var appName = bootweb.conf.namespace[path];
@@ -35,14 +36,14 @@ module.exports = {
         worker.log.info("app name = " + appName);
         worker.apps.load(require(appName), path, worker.app);
       }
-      process.title = 'BootWeb ' + bootweb.conf.SERVER + ' Worker ' + cluster.worker.id;
+      process.title = 'BootWeb ' + bootweb.conf.SERVER + ' Worker ' + bootweb.cluster.worker.id;
       try {
         process.setgid(bootweb.conf.worker_user);
         process.setuid(bootweb.conf.worker_group);
       } catch (e) {
         worker.log.warn('Cannot set gid - not switching user');
       }
-      worker.log.info('BootWeb Worker ' + cluster.worker.id + ' Started');
+      worker.log.info('BootWeb Worker ' + bootweb.cluster.worker.id + ' Started');
       if (callback) {
         return callback(null, worker);
       }
@@ -51,13 +52,16 @@ module.exports = {
   run: function (callback) {
     var worker = this
       , bootweb = worker.bootweb;
-    bootweb.onReady(function () {
+    bootweb.onReady(function (bootweb) {
       try {
-        worker.log.info("Start listening on " + bootweb.conf.worker_port + " " + bootweb.conf.worker_address)
+        worker.server.once('listening', function(){
+          worker.log.info("Start listening on " + bootweb.conf.worker_address + ":" + bootweb.conf.worker_port);
+        });
         worker.server.listen(bootweb.conf.worker_port, bootweb.conf.worker_address);
         if (typeof callback === "function") {
-          return callback(null, worker);
-        }
+            return callback(null, worker);
+          }
+
       } catch (e) {
         if (typeof callback === "function") {
           return callback(e, worker);

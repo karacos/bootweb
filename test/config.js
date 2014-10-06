@@ -1,5 +1,8 @@
 var cluster = require ( 'cluster' );
-var bootweb = require('../bootweb');
+var Bootweb = require('../bootweb');
+/*
+bootweb = new Bootweb(cluster);
+
 bootweb.onReady(function(bootweb) {
   bootweb.conf.env = 'test';
   if (bootweb.worker) {
@@ -10,17 +13,8 @@ bootweb.onReady(function(bootweb) {
 
   // Code to run if we're in the master process
 });
-  if ( !cluster.isMaster ) {
-    var worker = require ( '../bootweb/worker' );
-     worker.init ( cluster, function(err, worker) {
-     worker.bootweb.conf.env = 'test';
-     if (err) {
-        worker.bootweb.log.error("Worker init failed");
-      } else {
-        worker.run ();
-      }
-    } );
-  }
+
+ */
 module.exports = {
 	 db: {
 	    production: "mongodb://localhost/unittest",

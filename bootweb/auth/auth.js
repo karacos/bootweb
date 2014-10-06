@@ -1,7 +1,23 @@
 // config/auth.js
+var authconf = {}
+  , path = require('path')
+  , fs = require('fs');
+
+
 
 // expose our config directly to our application using module.exports
 module.exports = {
+  conf: authconf,
+  init: function(bootweb) {
+    bootweb.onReady(function(){
+  requireName = path.join(bootweb.conf.ROOT , '/servers/' , bootweb.conf.SERVER , 'etc') + "auth";
+  if (fs.existsSync(requireName + ".js")) {
+    authconf = require(requireName);
+    module.exports = authconf;
+  }
+});
+  }
+}; /*{
 
 	'facebookAuth' : {
 		'clientID' 		: 'your-secret-clientID-here',// your App ID
@@ -21,4 +37,4 @@ module.exports = {
 		'callbackURL' 	: 'htt../localhost:8080/auth/google/callback'
 	}
 
-};
+};*/

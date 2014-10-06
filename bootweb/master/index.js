@@ -4,16 +4,13 @@
  * can be used standalone in developpement mode
  **/
 
-
 module.exports = {
   workers: new Array(),
-  init: function (cluster, callback) {
-    var bootweb = require('../')
-      , master = this
+  init: function (bootweb, callback) {
+    var master = this
       , log4js = require('log4js');
 
     master.log = log4js.getLogger('bootweb.master');
-    bootweb.cluster = cluster;
     bootweb.master = master;
     master.bootweb = bootweb;
     bootweb.start(function () {
@@ -45,7 +42,8 @@ module.exports = {
     var master = this
       , npid = require('npid')
       , bootweb = master.bootweb;
-
+    if (!bootweb.cluster.isMaster)
+      throw "not the master, unallowed";
     /**
      * recursive "restart worker" function
      */
@@ -70,23 +68,27 @@ module.exports = {
       throw err;
     }
     // Count the machine's CPUs
-      if (bootweb.conf.env === 'test') {
-        master.log.info("env TEST enabled, fork one process");
-        bootweb.conf.cpuCount = 0;
-      } else {
-        master.log.info("env :" + bootweb.conf.env);
-        bootweb.conf.cpuCount = require('os').cpus().length;
-      }
+    if (bootweb.conf.env === 'test') {
+      master.log.info("env TEST enabled, fork one process");
+      bootweb.conf.cpuCount = 0;
+    } else {
+      master.log.info("env :" + bootweb.conf.env);
+      bootweb.conf.cpuCount = require('os').cpus().length;
+    }
     // Calls a recursive worker restart for each CPU
     for (var i = 0; i <= bootweb.conf.cpuCount; i++) {
       startWorker();
     }
-    bootweb.onReady(function () {
-      master.server.listen(bootweb.conf.master_port, bootweb.conf.master_address);
-      master.log.info('BootWeb Master Started ' + bootweb.conf.master_address + ":" + bootweb.conf.master_port );
+    var onListen = function() {
+      master.log.info('BootWeb Master Started ' + bootweb.conf.master_address + ":" + bootweb.conf.master_port);
       if (typeof callback === "function") {
         return callback(null, master);
       }
+    }
+
+    bootweb.onReady(function () {
+      master.server.once('listening', onListen);
+      master.server.listen(bootweb.conf.master_port, bootweb.conf.master_address);
     });
   },
   stop: function (callback) {
@@ -94,16 +96,18 @@ module.exports = {
       , bootweb = master.bootweb;
     try {
       master.pid.remove();
-      master.server.close(function (err) {
-        if (typeof callback === "function") {
-          callback(err, master);
-        }
-      });
       for (id in bootweb.cluster.workers) {
+        bootweb.cluster.workers[id].removeAllListeners();
         bootweb.cluster.workers[id].kill();
+        delete bootweb.cluster.workers[id];
       }
-      } catch (e) {
+      master.server.close();
+        if (typeof callback === "function") {
+          return callback(null, master);
+        }
 
+    } catch (e) {
+      master.log.error(e);
       if (typeof callback === "function") {
         callback(e, master);
       }

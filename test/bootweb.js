@@ -1,34 +1,40 @@
 'use strict';
 require('./config');
-var master = require('../bootweb/master');
-var worker = require('../bootweb/worker');
+var Bootweb = require("../bootweb");
 // import the moongoose helper utilities
+
 var utils = require('./utils');
 var test = require('unit.js');
 var request = require("request");
 var should = require('should');
+var cluster = require("cluster");
+var bootweb = new Bootweb(cluster);
 
-describe("Bootweb core", function () {
+if ( cluster.isMaster === true ) {
+describe("Bootweb core cluster mode", function () {
+
   describe("Worker", function () {
+    //
+    var bootweb = new Bootweb();
     it("should be an object", function () {
-      worker.should.be.type('object');
+      bootweb.Worker.should.be.type('object');
     });
     it("should have init and run properties", function () {
-      worker.should.have.property('init');
-      worker.should.have.property('run');
+      bootweb.Worker.should.have.property('init');
+      bootweb.Worker.should.have.property('run');
     });
     describe(".init(process, app, callback)", function () {
       var app = require('express')();
-      worker.init({worker: {id: 0}}, app, function (err, worker) {
-        it("worker.app should match given app", function() {
-          worker.app.should.match(function(){
+      bootweb.Worker.init(bootweb, app, function (err, worker) {
+        it("worker.app should match given app", function () {
+          worker.app.should.match(function () {
             return app;
           });
         });
       });
     });
     describe(".init(process,callback)", function () {
-      worker.init({worker: {id: 0}}, function (err, worker) {
+      bootweb.Worker.init(bootweb, function (err, worker) {
         var bootweb = worker.bootweb;
         bootweb.conf.env = 'test';
         it("contains the conf object", function () {
@@ -115,7 +121,7 @@ describe("Bootweb core", function () {
             it('then listens on the specified port', function (done) {
               request('http://' + bootweb.conf.worker_address + ':' + bootweb.conf.worker_port, function (err, resp, body) {
                 should.not.exist(err);
-                resp.statusCode.should.be.exactly(200);
+                resp.statusCode.should.be.type('number');
                 done();
               });
             });
@@ -148,6 +154,11 @@ describe("Bootweb core", function () {
                 done();
               });
             });
+            it("stop all worker instances", function(done) {
+              worker.stop(function (err, worker) {
+                done();
+              });
+            });
           });
         });
       });
@@ -155,15 +166,16 @@ describe("Bootweb core", function () {
   });
   describe("Master", function () {
     it("should be an object", function () {
-      master.should.be.type('object');
+      bootweb.Master.should.be.type('object');
     });
     it("should have init and run properties", function () {
-      master.should.have.property('init');
-      master.should.have.property('run');
+      bootweb.Master.should.have.property('init');
+      bootweb.Master.should.have.property('run');
     })
     describe(".init(process,callback) with bootweb given as arg", function () {
-      master.init(require('cluster'), function (err, master) {
+      bootweb.Master.init(bootweb, function (err, master) {
         var bootweb = master.bootweb;
+        bootweb.conf.env = 'test';
         it("contains the conf object", function () {
           master.server.should.be.type('object');
         });
@@ -191,66 +203,67 @@ describe("Bootweb core", function () {
             master.run.should.be.type("function");
           });
           describe("invoke with callback", function () {
-            it("returns parameters with no error", function (done) {
-              master.run(function (err, master) {
+            master.run(function (err, master) {
+              it("returns parameters with no error", function (done) {
                 should.not.exist(err);
                 should.exist(master);
                 done();
               });
-            });
-            it("set bootweb.conf.cpuCount as an integer", function () {
-              (bootweb.conf.cpuCount).should.be.an.Integer;
-            });
-            it("contains an array of process", function () {
-              test.should(master.workers.constructor.name.toString() == 'Array');
-              test.should(master.workers.length === (bootweb.conf.cpuCount + 1));
 
-            });
-            it("restarts a destroyed worker", function (done) {
-              var worker1 = master.workers[0];
-              master.workers[0].on('exit', function () {
-                var worker2 = master.workers[0];
+              it("set bootweb.conf.cpuCount as an integer", function () {
+                (bootweb.conf.cpuCount).should.be.an.Integer;
+              });
+              it("contains an array of process", function () {
+                test.should(master.workers.constructor.name.toString() == 'Array');
                 test.should(master.workers.length === (bootweb.conf.cpuCount + 1));
-                test.should(worker2 != worker1);
-                done();
+
               });
-              master.workers[0].kill();
-            });
-            it("stops gracefully, cleaning workers processes", function (done) {
-              master.stop(function (err, worker) {
-                should.not.exist(err);
-                test.should(master.workers.length === 0);
-                done();
+              it("restarts a destroyed worker", function (done) {
+                var worker1 = master.workers[0];
+                master.workers[0].on('exit', function () {
+                  var worker2 = master.workers[0];
+                  test.should(master.workers.length === (bootweb.conf.cpuCount + 1));
+                  test.should(worker2 != worker1);
+                  done();
+                });
+                master.workers[0].kill();
               });
-            });
-            it("restart after a stop", function (done) {
-              master.run(function (err, worker) {
-                should.not.exist(err);
-                should.exist(master);
-                test.should(master.workers.length === (bootweb.conf.cpuCount + 1));
-                done();
+              it("stops gracefully, cleaning workers processes", function (done) {
+                master.stop(function (err, worker) {
+                  should.not.exist(err);
+                  test.should(master.workers.length === 0);
+                  done();
+                });
               });
-            });
-            it("fails if started twice", function (done) {
-              master.run(function (err, worker) {
-                should.exist(err);
-                should.exist(master);
-                done();
-              });
-            });
-            it("stops then restarts with more CPU's (then stops)", function (done) {
-              master.stop(function (err, worker) {
-                should.not.exist(err);
-                test.should(master.workers.length === 0);
-                bootweb.conf.cpuCount = 2;
+              it("restart after a stop", function (done) {
                 master.run(function (err, worker) {
                   should.not.exist(err);
                   should.exist(master);
-                  test.should(master.workers.length === 2);
-                  master.stop(function (err, worker) {
+                  test.should(master.workers.length === (bootweb.conf.cpuCount + 1));
+                  done();
+                });
+              });
+              it("fails if started twice", function (done) {
+                master.run(function (err, worker) {
+                  should.exist(err);
+                  should.exist(master);
+                  done();
+                });
+              });
+              it("stops then restarts with more CPU's (then stops)", function (done) {
+                master.stop(function (err, worker) {
+                  should.not.exist(err);
+                  test.should(master.workers.length === 0);
+                  bootweb.conf.cpuCount = 2;
+                  master.run(function (err, worker) {
                     should.not.exist(err);
-                    test.should(master.workers.length === 0);
-                    done();
+                    should.exist(master);
+                    test.should(master.workers.length === 2);
+                    master.stop(function (err, worker) {
+                      test.should(master.workers.length === 0);
+                      should.not.exist(err);
+                      done();
+                    });
                   });
                 });
               });
@@ -260,5 +273,15 @@ describe("Bootweb core", function () {
       });
     });
   });
-
 });
+
+} else {
+  bootweb.Worker.init ( bootweb, function(err, worker) {
+   worker.bootweb.conf.env = 'test';
+   if (err) {
+      worker.bootweb.log.error("Worker init failed");
+    } else {
+      worker.run ();
+    }
+  } );
+}

@@ -11,14 +11,14 @@
  **/
 
 var EventEmitter = require ( 'events' ).EventEmitter
-  , bootweb = require ( './' )
   , path = require ( 'path' )
   , util = require ( 'util' );
 
 /**
  * Main BootWeb servers object, may emit events
  */
-function servers () {
+function servers (bootweb) {
+  this.bootweb = bootweb;
   EventEmitter.call ( this );
 }
 
@@ -28,7 +28,7 @@ function doCallBack (cb) {
   }
 }
 
-util.inherits ( bootweb, EventEmitter );
+util.inherits ( servers, EventEmitter );
 
 
 /**

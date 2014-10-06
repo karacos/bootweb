@@ -4,12 +4,13 @@
 //!../../bin/node-v0.10.26-linux-x64/bin/node
 
 // Include the cluster module
-var cluster = require ( 'cluster' )
-
+var cluster = require ( 'cluster')
+  , Bootweb = require("./")
+  , bootweb = new Bootweb(cluster);
 // Code to run if we're in the master process
-if ( cluster.isMaster ) {
+if ( bootweb.cluster.isMaster ) {
   var master = require ( './master' );
-  master.init ( cluster, function(err, bootweb) {
+  master.init ( bootweb, function(err, bootweb) {
     if (err) {
       bootweb.log.error("Master init failed");
     } else {
@@ -20,7 +21,7 @@ if ( cluster.isMaster ) {
 // Code to run if we're in a worker process
 } else {
   var worker = require ( './worker' );
-  worker.init ( cluster, function(err, bootweb) {
+  worker.init ( bootweb, function(err, bootweb) {
     if (err) {
       bootweb.log.error("Worker init failed");
     } else {

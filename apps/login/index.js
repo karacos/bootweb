@@ -32,7 +32,7 @@ app.use ( bodyParser.urlencoded ( {
                                     extended: true
                                   } ) );
 
-app.use ( session ( {secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore ( { filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' } ), resave: true, saveUninitialized: true} )
+app.use ( session ( {secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore ( { filename: path.join(bootweb.conf.ROOT , '/servers/' , bootweb.conf.SERVER , '/datas/sessions.db' }) ), resave: true, saveUninitialized: true} )
 )
 app.use ( passport.initialize () );
 app.use ( passport.session () );

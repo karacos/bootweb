@@ -12,7 +12,6 @@ var fs = require('fs')
   , flash = require('connect-flash')
   , passport = require('passport');
 
-require('../login/lib/passport')(passport)// pass passport for configuration
 //var logFile = fs.createWriteStream(conf.ROOT + '/servers/default/logs/access.log', { flags: 'a' });
 
 //app.use(morgan('combined', {stream: logFile}));
