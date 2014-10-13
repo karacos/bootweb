@@ -1,5 +1,5 @@
 var express = require('express')
-  , bootweb = require('../../lib/bootweb/bootweb') 
+  , bootweb = require('../../bootweb')
   , WebSocketServer = require('ws').Server
   , app = express();
 

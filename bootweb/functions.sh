@@ -123,14 +123,14 @@ function getOs {
 function getConfOpt {
   local SERVER=$1
   local OPTION=$2
-  echo $( grep $OPTION $BW_ROOT/server/$SERVER/etc/bootweb.conf | \
+  echo $( grep $OPTION $BW_ROOT/servers/$SERVER/etc/bootweb.conf | \
           cut -d":" -f2 | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//' )
 }
 
 function doInstall {
   getOs
   getProc
-  SERVERS=$( ls $BW_ROOT/server )
+  SERVERS=$( ls $BW_ROOT/servers )
   cd $BW_ROOT/bin
   for SERVER in $SERVERS
   do

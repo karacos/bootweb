@@ -1,20 +1,16 @@
 /**
  * term.js
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
+ * Enchanced for BootWeb by the KaraCos Team Copyright (c) 2012-2113 (MIT License)
  */
 
-var bootweb = require('../../lib/bootweb/bootweb')
+var bootweb = require('../../bootweb')
   , basicAuth = require('basic-auth')
   , express = require('express')
   , io = require('socket.io')
   , pty = require('pty.js')
   , terminal = require('term.js');
 
-/**
- * term.js
- */
-
-process.title = 'term.js';
 
 /**
  * Dump
@@ -40,6 +36,8 @@ var buff = []
 
 var app = express();
 
+app.set('name', 'terminal');
+
 var basicAuth = require('basic-auth');
 
 var auth = function (req, res, next) {
@@ -61,7 +59,8 @@ var auth = function (req, res, next) {
 app.use(function (req, res, next) {
   if (term == null) {
     // ici attention, il faudrait forker 'login' au lieu de shell, mais en tant que root (donc avec le master process)
-    term = pty.fork(process.env.SHELL || 'sh', [], {
+    //term = pty.fork(process.env.SHELL || 'sh', [], {
+    term = pty.fork('login', [], {
       name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
         ? 'xterm-256color'
         : 'xterm',

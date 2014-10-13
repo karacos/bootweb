@@ -8,7 +8,7 @@
 #usage		 : ./getNpmDeps
 
 IFS=$'\n'
-MODULES_PATH="/opt/DjinnSys/lib/node_modules"
+MODULES_PATH="/opt/DjinnSys/node_modules"
 
 ALL=$( find $MODULES_PATH -maxdepth 2 -name package.json -exec grep -H \"version\": {} \; ) 
 

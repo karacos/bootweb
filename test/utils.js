@@ -5,12 +5,27 @@
 */
 
 var config = require('./config');
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 
 // ensure the NODE_ENV is set to 'test'
 // this is helpful when you would like to change behavior when testing
 process.env.NODE_ENV = 'test';
 
+var should = require('should');
+
+describe("bootweb/utils", function(){
+  var utils = require("../bootweb/utils");
+  describe("isAbsolute(path)",function(){
+    it("'/var/log/bootweb' is absolute", function(){
+      should(utils.isAbsolute("/var/log/bootweb")).ok;
+    });
+        it("'bootweb' is not absolute", function(){
+      should(!utils.isAbsolute("bootweb")).ok;
+    });
+  });
+});
+
+/*
 beforeEach(function (done) {
 
  function clearDB() {
@@ -49,3 +64,4 @@ afterEach(function (done) {
  mongoose.disconnect();
  return done();
 });
+*/

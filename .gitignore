@@ -5,14 +5,16 @@ node_modules/*
 *node_modules
 
 !*.gitkeep/
-server/default/run/*
-server/default/datas/*
-server/default/logs/*
+servers/default/run/*
+servers/default/datas/*
+servers/default/logs/*
 *.log
 *.swp
 *~
 
 .idea
-server/test/run/*
-server/test/datas/*
-server/test/logs/*
+servers/test/run/*
+servers/test/datas/*
+servers/test/logs/*
+
+*sandbox*

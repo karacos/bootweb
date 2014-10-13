@@ -70,18 +70,21 @@
     "term.js": "*",
     "connect-fastcgi": "*",
     "basic-auth" : "*",
-    "js-yaml": "*"
+    "js-yaml": "*",
+    "mousse": "*",
+    "request": "*"
   },
   "devDependencies": {
     "mocha": "*",
     "should": "*",
     "express": "*",
-    "supertest": "*"
+    "supertest": "*",
+    "unit.js": "*"
   },
   "engines": {
     "node": "*"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha -w"
+    "test": "./Tests"
   }
 }

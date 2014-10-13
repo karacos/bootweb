@@ -9,7 +9,7 @@ var express = require('express')
 var app = express()
   , passport = require('passport')
   , flash = require('connect-flash')
-  , pass = require('../login/lib/password')
+  , pass = require('../login/password')
   , LocalStrategy = require('passport-local').Strategy
   , log4js = require('log4js');
   //, bootweb = require('bootweb');
@@ -28,7 +28,7 @@ share = sharejs.server.createClient({
 });
 
 log4js.loadAppender('file');
-log4js.addAppender(log4js.appenders.file(process.env.BW_ROOT + '/server/default/logs/bootweb.log'), 'login')
+log4js.addAppender(log4js.appenders.file(process.env.BW_ROOT + '/servers/default/logs/bootweb.log'), 'login')
 
 var logger = log4js.getLogger('login');
 logger.setLevel('DEBUG');
@@ -47,7 +47,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/server/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true}));
+app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(sharejs.scriptsDir));
 //app.use('/', routes);
@@ -56,7 +56,7 @@ app.use(express.static(sharejs.scriptsDir));
 // catch 404 and forward to error handler
 
 // error handlers
-require('../login/lib/passport')(passport)// pass passport for configuration
+require('../login/passport')(passport)// pass passport for configuration
 require('./routes')(app, passport)// load our routes and pass in our app and fully configured passport
 
 // catch 404 and forward to error handler

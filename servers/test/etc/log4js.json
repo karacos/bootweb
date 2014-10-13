@@ -1,0 +1,23 @@
+{
+  "appenders": [
+    {
+      "type": "file",
+      "filename": "server.log",
+      "maxLogSize": 20480,
+      "backups": 3
+    },
+    {
+      "category": "[all]",
+      "type": "logLevelFilter",
+      "level": "FATAL",
+      "maxLevel": "FATAL",
+      "appender": {
+        "type": "console"
+      }
+    }
+  ],
+  "levels": {
+        "[all]": "INFO",
+        "bootweb*": "DEBUG"
+    }
+}
