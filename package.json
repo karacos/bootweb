@@ -1,5 +1,6 @@
 {
-  "name": "BootWeb",
+  "name": "bootweb",
+  "main": "./bootweb",
   "description": "Fast minimalist Web Application Server",
   "version": "0.0.1",
   "author": "The KaraCos Team <team@karacos.org> (http://karacos.org)",
