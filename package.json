@@ -1,6 +1,6 @@
 {
   "name": "bootweb",
-  "main": "./bootweb",
+  "main": "./bootweb/index.js",
   "description": "Fast minimalist Web Application Server",
   "version": "0.0.1",
   "author": "The KaraCos Team",
