@@ -1,7 +1,7 @@
 var fs = require('fs')
   , path = require('path')
-  , conf = require('../../bootweb/config')
   , bootweb = require('../../bootweb')
+  , conf = bootweb.conf
   , express = require("express")
   , app = express()
   , morgan = require('morgan')
@@ -13,9 +13,9 @@ var fs = require('fs')
   , passport = require('passport');
 
 require('../login/lib/passport')(passport)// pass passport for configuration
-var logFile = fs.createWriteStream(conf.ROOT + '/servers/default/logs/access.log', { flags: 'a' });
+//var logFile = fs.createWriteStream(conf.ROOT + '/servers/default/logs/access.log', { flags: 'a' });
 
-app.use(morgan('combined', {stream: logFile}));
+//app.use(morgan('combined', {stream: logFile}));
 app.use(express.static(__dirname + '/public'));
 
 app.use(cookieParser('keyboard cat'));
@@ -24,8 +24,8 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true})
-);
+//app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true})
+//);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());

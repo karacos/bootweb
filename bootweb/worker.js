@@ -9,17 +9,19 @@ module.exports = {
 
   init: function (cluster, app, callback) {
     var bootweb = require('./')
-      , log4js = require('log4js')
       , worker = this;
     if (typeof app === "function" && callback === undefined) {
       callback = app;
       app = undefined;
     }
     worker.apps = new AppRegistry(bootweb);
-    worker.log = log4js.getLogger('bootweb.worker ' + cluster.worker.id);
-    bootweb.worker = cluster.worker;
-    worker.bootweb = bootweb;
-    bootweb.start(function () {
+    bootweb.cluster = cluster;
+    bootweb.worker = worker;
+    worker.id = cluster.worker.id;
+    bootweb.start(function (err, bootweb) {
+      var log4js = require('log4js');
+      worker.bootweb = bootweb;
+      worker.log = log4js.getLogger('bootweb.worker ' + worker.id);
       if (app !== undefined) {
         worker.app = app;
       } else {

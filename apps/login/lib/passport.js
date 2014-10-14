@@ -8,9 +8,6 @@ var path              = require( 'path' )
 //, TwitterStrategy  = require( 'passport-twitter' ).Strategy
 //, GoogleStrategy   = require( 'passport-google-oauth' ).OAuth2Strategy;
 
-log4js.loadAppender( 'console' );
-log4js.loadAppender( 'file' );
-log4js.addAppender( log4js.appenders.file( conf.ROOT + '/servers/' + conf.SERVER + '/logs/bootweb.log' ), 'passport' );
 var logger = log4js.getLogger( 'passport' );
 logger.setLevel( 'INFO' );
  

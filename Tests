@@ -15,8 +15,7 @@ export BW_ROOT="$( dirname $BW )"
 # NodeJS Variables
 # export NODE_PATH="${BW_ROOT}/lib/node_modules"
 # Loging Variables
-export LOGFILE="${BW_ROOT}/servers/${BW_SERVER}/logs/bootweb.log" # Fichier de log
-export LOGLEVEL="DEBUG"
+# export LOGLEVEL="DEBUG"
 
 export BW_SERVER=test
 if [ ! $( command -v node ) ]

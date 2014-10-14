@@ -27,9 +27,6 @@ share = sharejs.server.createClient({
   backend: backend
 });
 
-log4js.loadAppender('file');
-log4js.addAppender(log4js.appenders.file(process.env.BW_ROOT + '/servers/default/logs/bootweb.log'), 'login')
-
 var logger = log4js.getLogger('login');
 logger.setLevel('DEBUG');
 

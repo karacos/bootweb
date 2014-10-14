@@ -17,8 +17,6 @@ var app = express ()
 require ( './lib/passport' ) ( passport )// pass passport for configuration
 
 
-log4js.loadAppender ( 'file' );
-log4js.addAppender ( log4js.appenders.file ( process.env.BW_ROOT + '/servers/default/logs/bootweb.log' ), 'login' )
 
 var logger = log4js.getLogger ( 'login' );
 logger.setLevel ( 'DEBUG' );

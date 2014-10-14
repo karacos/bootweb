@@ -60,7 +60,7 @@ module.exports = {
     }
 
     try {
-      master.pid = npid.create(bootweb.conf.ROOT + '/servers/' + bootweb.conf.SERVER + '/run/bootweb.pid');
+      master.pid = npid.create(bootweb.conf.server_dir + '/run/bootweb.pid');
       master.pid.removeOnExit();
     } catch (err) {
       master.log.error(err);
@@ -83,7 +83,7 @@ module.exports = {
     }
     bootweb.onReady(function () {
       master.server.listen(bootweb.conf.master_port, bootweb.conf.master_address);
-      master.log.info('BootWeb Master Started')
+      master.log.info('BootWeb Master Started ' + bootweb.conf.master_address + ":" + bootweb.conf.master_port );
       if (typeof callback === "function") {
         return callback(null, master);
       }

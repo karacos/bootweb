@@ -10,35 +10,20 @@
 
 var EventEmitter = require('events').EventEmitter
   , util = require('util')
-  , WebSocketServer = require('ws').Server
-  , log4js = require('log4js');
+  , WebSocketServer = require('ws').Server;
 
 /**
  * Main library object, our bootweb may emit events
  */
 function Bootweb() {
   EventEmitter.call(this);
+  this.is_ready = false;
+  this.cbs = [];
+  this.wss = {};
 }
 
 util.inherits(Bootweb, EventEmitter);
 
-Bootweb.prototype.is_ready = false;
-Bootweb.prototype.conf = require('./config');
-Bootweb.prototype.servers = require('./servers');
-Bootweb.prototype.cbs = [];
-Bootweb.prototype.wss = {};
-
-/**
- * shortcut for Bootweb callbacks invocation
- *
- * @param cb callback to run with argument Bootweb (this)
- */
-Bootweb.prototype.doCallBack = function (cb) {
-  var bootweb = this;
-  if (cb !== undefined) {
-    cb(bootweb);
-  }
-}
 
 /**
  * Single event ready, direct callback call if emitted only once.
@@ -56,17 +41,16 @@ Bootweb.prototype.onReady = function (callback) {
 }
 
 /**
- * Starts bootweb, configure basics, run onready callbacks then run callback (param)
+ * Starts bootweb, configure basics, run onready callbacks then run callback
  *
- * @param callback
+ * @param callback function(err,bootweb)
  * @returns bootweb
  */
 Bootweb.prototype.start = function (callback) {
   var bootweb = this;
+
   if (!bootweb.is_ready) {
-    bootweb.server_dir = bootweb.conf.ROOT + '/servers/' + bootweb.conf.SERVER;
-    log4js.configure(bootweb.server_dir + '/etc/log4js.json', { reloadSecs: 300, cwd: bootweb.server_dir + '/logs'});
-    bootweb.log = log4js.getLogger("bootweb");
+    bootweb.conf = require('./config')(bootweb);
     bootweb.express = require('express');
     bootweb.is_ready = true;
     for (var x in this.cbs) {
@@ -76,10 +60,9 @@ Bootweb.prototype.start = function (callback) {
     if (typeof callback === "function") {
       callback(null, bootweb);
     }
-  } else {
-    if (typeof callback === "function") {
-      callback(null, bootweb);
-    }
+  }
+  if (typeof callback === "function") {
+    callback(null, bootweb);
   }
 }
 

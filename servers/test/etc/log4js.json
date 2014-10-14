@@ -1,19 +1,11 @@
 {
   "appenders": [
     {
+      "category": "[all]",
       "type": "file",
-      "filename": "server.log",
+      "filename": "tests.log",
       "maxLogSize": 20480,
       "backups": 3
-    },
-    {
-      "category": "[all]",
-      "type": "logLevelFilter",
-      "level": "FATAL",
-      "maxLevel": "FATAL",
-      "appender": {
-        "type": "console"
-      }
     }
   ],
   "levels": {

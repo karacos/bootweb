@@ -1,4 +1,5 @@
 'use strict';
+require('./config');
 var master = require('../bootweb/master');
 var worker = require('../bootweb/worker');
 // import the moongoose helper utilities
@@ -6,7 +7,6 @@ var utils = require('./utils');
 var test = require('unit.js');
 var request = require("request");
 var should = require('should');
-
 
 describe("Bootweb core", function () {
   describe("Worker", function () {
