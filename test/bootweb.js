@@ -16,8 +16,18 @@ describe("Bootweb core", function () {
     it("should have init and run properties", function () {
       worker.should.have.property('init');
       worker.should.have.property('run');
-    })
-    describe(".init(process,callback) with bootweb given as arg", function () {
+    });
+    describe(".init(process, app, callback)", function () {
+      var app = require('express')();
+      worker.init({worker: {id: 0}}, app, function (err, worker) {
+        it("worker.app should match given app", function() {
+          worker.app.should.match(function(){
+            return app;
+          });
+        });
+      });
+    });
+    describe(".init(process,callback)", function () {
       worker.init({worker: {id: 0}}, function (err, worker) {
         var bootweb = worker.bootweb;
         bootweb.conf.env = 'test';

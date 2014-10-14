@@ -7,16 +7,25 @@ var AppRegistry = require('./apps')
 
 module.exports = {
 
-  init: function (cluster, callback) {
+  init: function (cluster, app, callback) {
     var bootweb = require('./')
       , log4js = require('log4js')
       , worker = this;
+    if (typeof app === "function" && callback === undefined) {
+      callback = app;
+      app = undefined;
+    }
     worker.apps = new AppRegistry(bootweb);
     worker.log = log4js.getLogger('bootweb.worker ' + cluster.worker.id);
     bootweb.worker = cluster.worker;
     worker.bootweb = bootweb;
     bootweb.start(function () {
-      worker.app = require('../apps/bootweb');
+      if (app !== undefined) {
+        worker.app = app;
+      } else {
+        worker.app = require('../apps/bootweb');
+        }
+      //require("./auth/routes")(worker.app,bootweb.passport);
       worker.server = require('http').createServer(worker.app);
       for (var path in bootweb.conf.namespace) {
         var appName = bootweb.conf.namespace[path];
