@@ -59,12 +59,9 @@ Bootweb.prototype.start = function (callback) {
       bootweb.cbs[x](bootweb);
       delete bootweb.cbs[x];
     }
-    if (typeof callback === "function") {
-      callback(null, bootweb);
-    }
   }
   if (typeof callback === "function") {
-    callback(null, bootweb);
+    return callback(null, bootweb);
   }
 }
 

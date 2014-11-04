@@ -99,7 +99,7 @@ app.use(function (req, res, next) {
      */
 
 
-  // à factoriser dans une fonction bootweb.getWss(app, callback){return callback(io);} dans lib/bootweb.js
+  //TODO:  à factoriser dans une fonction bootweb.getWss(app, callback){return callback(io);} dans lib/bootweb.js
   if (bootweb.wss[app.get('name')] === undefined) {
     bootweb.wss[app.get('name')] = io.listen(bootweb.server, {
       log: false

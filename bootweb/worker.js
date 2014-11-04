@@ -44,7 +44,7 @@ module.exports = {
       }
       worker.log.info('BootWeb Worker ' + cluster.worker.id + ' Started');
       if (callback) {
-        callback(null, worker);
+        return callback(null, worker);
       }
     });
   },
@@ -53,6 +53,7 @@ module.exports = {
       , bootweb = worker.bootweb;
     bootweb.onReady(function () {
       try {
+        worker.log.info("Start listening on " + bootweb.conf.worker_port + " " + bootweb.conf.worker_address)
         worker.server.listen(bootweb.conf.worker_port, bootweb.conf.worker_address);
         if (typeof callback === "function") {
           return callback(null, worker);
@@ -72,12 +73,12 @@ module.exports = {
     try {
       worker.server.close(function (err) {
         if (typeof callback === "function") {
-          callback(err, worker);
+          return callback(err, worker);
         }
       });
     } catch (e) {
       if (typeof callback === "function") {
-        callback(e, worker);
+        return callback(e, worker);
       }
     }
   }
