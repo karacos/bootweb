@@ -20,6 +20,8 @@ function Bootweb() {
   this.is_ready = false;
   this.cbs = [];
   this.wss = {};
+  this.Worker = require("./worker");
+  this.Master = require("./master");
 }
 
 util.inherits(Bootweb, EventEmitter);
