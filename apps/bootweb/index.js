@@ -12,25 +12,15 @@ var fs = require('fs')
   , flash = require('connect-flash')
   , passport = require('passport');
 
-//var logFile = fs.createWriteStream(conf.ROOT + '/servers/default/logs/access.log', { flags: 'a' });
-
-//app.use(morgan('combined', {stream: logFile}));
 app.use(express.static(__dirname + '/public'));
 
-app.use(cookieParser('keyboard cat'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-
-//app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true})
-//);
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
+app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', function (req, res) {
-  res.send('Hello From Worker ' + bootweb.worker.id)
+  res.render('index', {
+    title: "The bootweb application server",
+    instance: "worker " + app.bootweb.worker.id
+  })
 });
 
 

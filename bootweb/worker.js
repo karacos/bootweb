@@ -27,15 +27,15 @@ module.exports = {
       } else {
         worker.app = require('../apps/bootweb');
       }
-      worker.apps.wrapApp(worker.app);
       require("./auth/routes")(worker.app, bootweb.passport);
-      worker.server = require('http').createServer(worker.app);
       for (var path in bootweb.conf.namespace) {
         var appName = bootweb.conf.namespace[path];
         worker.log.info("app path = " + path);
         worker.log.info("app name = " + appName);
         worker.apps.load(require(appName), path, worker.app);
       }
+      worker.apps.wrapApp(worker.app);
+      worker.server = require('http').createServer(worker.app);
       process.title = 'BootWeb ' + bootweb.conf.SERVER + ' Worker ' + bootweb.cluster.worker.id;
       try {
         process.setgid(bootweb.conf.worker_user);

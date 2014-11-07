@@ -8,6 +8,7 @@ var should = require('should');
 var cluster= require('cluster');
 if ( cluster.isMaster === true ) {
   var bootweb = new Bootweb();
+  app.get('/', function(req,res){res.send("Home")});
   bootweb.startApp(app, function (err, worker) {
       describe("standalone startApp", function () {
         it("start nicely an app", function () {
@@ -19,7 +20,7 @@ if ( cluster.isMaster === true ) {
         it('which listen on port', function (done) {
           request('http://' + bootweb.conf.worker_address + ':' + bootweb.conf.worker_port, function (err, resp, body) {
             should.not.exist(err);
-            resp.statusCode.should.be.type("number");
+            resp.statusCode.should.be.exactly(200);
             done();
           });
         });

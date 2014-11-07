@@ -121,7 +121,7 @@ describe("Bootweb core cluster mode", function () {
             it('then listens on the specified port', function (done) {
               request('http://' + bootweb.conf.worker_address + ':' + bootweb.conf.worker_port, function (err, resp, body) {
                 should.not.exist(err);
-                resp.statusCode.should.be.type('number');
+                resp.statusCode.should.be.exactly(200);
                 done();
               });
             });

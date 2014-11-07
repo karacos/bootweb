@@ -113,6 +113,8 @@ AppRegistry.prototype.delete = function (app, callback) {
  * @param callback
  */
 AppRegistry.prototype.wrapApp = function(app, callback) {
+  app.bootweb = bootweb;
+  app.set ( 'view engine', 'jade' );
   if (bootweb.conf.env === 'test' || bootweb.conf.env === 'dev') {
       // development error handler
       app.use(function (err, req, res, next) {
@@ -137,19 +139,21 @@ AppRegistry.prototype.wrapApp = function(app, callback) {
         return next();
       res.redirect('/login');
     }
-    // error handlers
-  // catch 404 and forward to error handler
-    app.use(function (req, res, next) {
-      var err = new Error('Not Found');
-      err.status = 404;
-      next(err);
-    });
+
 
     app.use(bootweb.passport.initialize());
     app.use(bootweb.passport.session());
     app.use(session({secret: 'keyboard cat', cookie: { secure: false, maxAge: 900000 }, store: new NedbStore({ filename: process.env.BW_ROOT + '/servers/' + process.env.BW_SERVER + '/datas/sessions.db' }), resave: true, saveUninitialized: true}));
 
     app.use(cookieParser('keyboard cat'));
+
+      // error handlers
+  // catch 404 and forward to error handler
+    app.use(function (req, res, next) {
+      var err = new Error('Not Found');
+      err.status = 404;
+      next(err);
+    });
 };
 
 /**
